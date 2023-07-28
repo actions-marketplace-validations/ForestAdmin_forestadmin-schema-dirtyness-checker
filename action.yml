@@ -31,7 +31,6 @@ runs:
       shell: bash
     - run: echo "Running server ${{ inputs.run-agent-command }}."
       shell: bash
-    - run: ls
     - name: Starting agent server
       env:
         FOREST_ENV_SECRET: fa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5e
