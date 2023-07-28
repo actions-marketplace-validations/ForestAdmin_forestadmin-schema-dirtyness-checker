@@ -35,6 +35,7 @@ runs:
       env:
         FOREST_ENV_SECRET: fakefakefakefakefakefakefakefakefakefakefakefakefakefakefakefake
         FOREST_AUTH_SECRET: fake
+        FOREST_DISABLE_AUTO_SCHEMA_APPLY: true
       run: (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 3>pid | ./wait-agent-started.sh ${{ inputs.log-when-setup }} ${{ inputs.log-when-agent-failed }}
       shell: bash
     - name: Moving to path
