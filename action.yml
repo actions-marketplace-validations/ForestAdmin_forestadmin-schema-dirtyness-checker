@@ -1,0 +1,42 @@
+name: 'Forest Admin Schema Dirtyness Checker'
+description: 'Allow to check that the .forestadmin-schema.json is not dirty'
+inputs:
+  setup-infrastructure-command:  # id of input
+    description: 'The command to setup your infrastructure (Database, docker)'
+    required: false
+  run-agent-command:
+    description: 'The command to run your agent'
+    required: true
+  log-when-setup:
+    description: 'A log that is printed in your console once your server is fully started'
+    required: true
+    default: 'Successfully mounted on Standalone server'
+  log-when-agent-failed:
+    description: 'A log that is printed if your server failed to start'
+    required: true
+    default: 'Failed running'
+  schema-path:
+    description: 'The path to the .forestadmin-schema.json file'
+    required: true
+    default: '.forestadmin-schema.json'
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo "Running setup ${{ inputs.setup-infrastructure-command }}."
+      shell: bash
+    - name: Setup infrastructure
+      if: ${{ inputs.setup-infrastructure-command }}
+      run: eval ${{ inputs.setup-infrastructure-command }}
+      shell: bash
+    - run: echo "Running server ${{ inputs.run-agent-command }}."
+      shell: bash
+    - name: Starting agent server
+      id: setup-infrastructure-output
+      run: (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 3>pid | ./wait-agent-started.sh ${{ inputs.log-when-setup }} ${{ inputs.log-when-agent-failed }}
+      shell: bash
+    - name: Moving to path
+      run: ls && cd "${{ github.action_path }}" && ls
+      shell: bash
+    - name: Checking diff
+      run: git diff --exit-code --quiet ${{ inputs.schema-path }}
