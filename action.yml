@@ -43,3 +43,4 @@ runs:
       shell: bash
     - name: Checking diff
       run: git diff --exit-code --quiet ${{ inputs.schema-path }}
+      shell: bash
