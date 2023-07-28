@@ -32,7 +32,9 @@ runs:
     - run: echo "Running server ${{ inputs.run-agent-command }}."
       shell: bash
     - name: Starting agent server
-      id: setup-infrastructure-output
+      env:
+        FOREST_ENV_SECRET: fakefakefakefakefakefakefakefakefakefakefakefakefakefakefakefake
+        FOREST_AUTH_SECRET: fake
       run: (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 3>pid | ./wait-agent-started.sh ${{ inputs.log-when-setup }} ${{ inputs.log-when-agent-failed }}
       shell: bash
     - name: Moving to path
