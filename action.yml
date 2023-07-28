@@ -1,7 +1,7 @@
 name: 'Forest Admin Schema Dirtyness Checker'
 description: 'Allow to check that the .forestadmin-schema.json is not dirty'
 inputs:
-  setup-infrastructure-command:  # id of input
+  setup-infrastructure-command:
     description: 'The command to setup your infrastructure (Database, docker)'
     required: false
   run-agent-command:
