@@ -36,7 +36,7 @@ runs:
         FOREST_ENV_SECRET: fa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5e
         FOREST_AUTH_SECRET: fake
         FOREST_DISABLE_AUTO_SCHEMA_APPLY: true
-      run: (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 3>pid | ./${{ GITHUB_ACTION_PATH }}/wait-agent-started.sh ${{ inputs.log-when-setup }} ${{ inputs.log-when-agent-failed }}
+      run: (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 3>pid | .${GITHUB_ACTION_PATH}/wait-agent-started.sh ${{ inputs.log-when-setup }} ${{ inputs.log-when-agent-failed }}
       shell: bash
     - name: Moving to path
       run: ls && cd "${{ github.action_path }}" && ls
