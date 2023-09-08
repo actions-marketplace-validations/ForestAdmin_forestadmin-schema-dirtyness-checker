@@ -1,24 +1,35 @@
-name: 'Forest Admin Schema Dirtyness Checker'
-description: 'Allow to check that the .forestadmin-schema.json is not dirty'
+name: 'Forest Admin Schema & typings Dirtyness Checker'
+description: 'Allow to check that the .forestadmin-schema.json and the typings files (optional) are not dirty'
 inputs:
   setup-infrastructure-command:
-    description: 'The command to setup your infrastructure (Database, docker)'
+    description: 'The command to setup your infrastructure (Database, docker, etc.)'
     required: false
   run-agent-command:
     description: 'The command to run your agent'
     required: true
   log-when-setup:
-    description: 'A log that is printed in your console once your server is fully started'
+    description: 'A log that is printed in your console once your agent is fully setup'
     required: true
     default: 'Successfully mounted on Standalone server'
   log-when-agent-failed:
-    description: 'A log that is printed if your server failed to start'
+    description: 'A log that is printed if your agent failed to start'
     required: true
     default: 'Failed running'
   schema-path:
     description: 'The path to the .forestadmin-schema.json file'
     required: true
     default: '.forestadmin-schema.json'
+  typings-path:
+    description: 'Useful for the agent-nodejs (https://docs.forestadmin.com/developer-guide-agents-nodejs/getting-started/install/autocompletion-and-typings). It will check if the typings is not dirty'
+    required: false
+  env-secret-name:
+    description: 'The name of the environment variable containing the secret'
+    required: true
+    default: 'FOREST_ENV_SECRET'
+  auth-secret-name:
+    description: 'The name of the environment variable containing the auth secret'
+    required: true
+    default: 'FOREST_AUTH_SECRET'
 
 runs:
   using: "composite"
@@ -29,18 +40,22 @@ runs:
       if: ${{ inputs.setup-infrastructure-command }}
       run: eval ${{ inputs.setup-infrastructure-command }}
       shell: bash
-    - run: echo "Running server ${{ inputs.run-agent-command }}."
+    - run: echo "Running agent ${{ inputs.run-agent-command }}."
       shell: bash
-    - name: Starting agent server
+    - name: Starting agent
       env:
-        FOREST_ENV_SECRET: fa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5efa5e
-        FOREST_AUTH_SECRET: fake
+        "${{ github.env-secret-name }}": 61a31971206f285c3e8eb8f3ee420172eb004bfa9fa24846dde6d5dd438e3991
+        "${{ github.auth-secret-name }}": fake
         FOREST_DISABLE_AUTO_SCHEMA_APPLY: true
-      run: (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 3>pid | ${GITHUB_ACTION_PATH}/wait-agent-started.sh ${{ inputs.log-when-setup }} ${{ inputs.log-when-agent-failed }}
+      run: (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 3>pid | ${{ github.action_path }}/wait-agent-setup.sh ${{ inputs.log-when-setup }} ${{ inputs.log-when-agent-failed }}
       shell: bash
     - name: Moving to path
-      run: ls && cd "${{ github.action_path }}" && ls
+      run: cd "${{ github.action_path }}" && ls
       shell: bash
-    - name: Checking diff
+    - name: Checking schema
+      shell: bash
       run: git diff --exit-code --quiet ${{ inputs.schema-path }}
+    - name: Checking typings if needed
+      if: ${{ inputs.typings-path }}
       shell: bash
+      run: git diff --exit-code --quiet ${{ inputs.typings-path }}
