@@ -30,8 +30,8 @@ inputs:
     description: 'The name of the environment variable containing the auth secret'
     required: true
     default: 'FOREST_AUTH_SECRET'
-  should-log:
-    description: 'Print all the logs instead of hiding them'
+  display-log:
+    description: 'Display all the logs instead of hiding them'
     required: false
     default: false
 
@@ -48,17 +48,20 @@ runs:
       shell: bash
     - name: Starting agent
       env:
+        # these secrets must not be overridden because we don't want to send the schema to the server.
         ${{ inputs.env-secret-name }}: 61a31971206f285c3e8eb8f3ee420172eb004bfa9fa24846dde6d5dd438e3991
         ${{ inputs.auth-secret-name }}: fake
+
+        # disable the agent v1 to apply the schema automatically
         FOREST_DISABLE_AUTO_SCHEMA_APPLY: true
-      run: (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 2>&1 3>pid | ${GITHUB_ACTION_PATH}/wait-agent-setup.sh "${{ inputs.log-when-setup }}" "${{ inputs.log-when-agent-failed }}" ${{ inputs.should-log }}
+      run: (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 2>&1 3>pid | ${GITHUB_ACTION_PATH}/wait-agent-setup.sh "${{ inputs.log-when-setup }}" "${{ inputs.log-when-agent-failed }}" ${{ inputs.display-log }}
       shell: bash
     - name: Moving to path
       run: cd "${{ inputs.action_path }}" && ls
       shell: bash
     - name: Log schema diff
       shell: bash
-      if: ${{ inputs.should-log }}
+      if: ${{ inputs.display-log }}
       run: git diff ${{ inputs.schema-path }}
     - name: Checking schema
       shell: bash
