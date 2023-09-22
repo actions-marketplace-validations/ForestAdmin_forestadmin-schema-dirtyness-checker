@@ -13,9 +13,9 @@ cleanup()
 
 while read input
 do
-  echo $input
   if echo $input | grep -q "$log_when_server_failed";
   then
+    echo $input;
     cleanup;
     exit 2;
   else
@@ -23,6 +23,8 @@ do
     then
       cleanup;
       exit 0;
+    else
+      echo $input;
     fi;
   fi;
 done
