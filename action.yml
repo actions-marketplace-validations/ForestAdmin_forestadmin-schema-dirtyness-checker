@@ -56,6 +56,10 @@ runs:
     - name: Moving to path
       run: cd "${{ inputs.action_path }}" && ls
       shell: bash
+    - name: Log schema diff
+      shell: bash
+      if: ${{ inputs.should-log }}
+      run: git diff ${{ inputs.schema-path }}
     - name: Checking schema
       shell: bash
       run: git diff --exit-code --quiet ${{ inputs.schema-path }}
