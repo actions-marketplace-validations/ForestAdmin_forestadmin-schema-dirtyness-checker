@@ -45,10 +45,10 @@ runs:
     - name: Starting agent
       env:
         FOREST_DISABLE_AUTO_SCHEMA_APPLY: true
-      run: ${{ github.env-secret-name }}=61a31971206f285c3e8eb8f3ee420172eb004bfa9fa24846dde6d5dd438e3991 ${{ github.auth-secret-name }}=fake (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 3>pid | ${{ github.action_path }}/wait-agent-setup.sh ${{ inputs.log-when-setup }} ${{ inputs.log-when-agent-failed }}
+      run: ${{ inputs.env-secret-name }}=61a31971206f285c3e8eb8f3ee420172eb004bfa9fa24846dde6d5dd438e3991 ${{ inputs.auth-secret-name }}=fake (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 3>pid | ${{ github.action_path }}/wait-agent-setup.sh ${{ inputs.log-when-setup }} ${{ inputs.log-when-agent-failed }}
       shell: bash
     - name: Moving to path
-      run: cd "${{ github.action_path }}" && ls
+      run: cd "${{ inputs.action_path }}" && ls
       shell: bash
     - name: Checking schema
       shell: bash
