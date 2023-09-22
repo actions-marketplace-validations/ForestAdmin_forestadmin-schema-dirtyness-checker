@@ -56,9 +56,6 @@ runs:
         FOREST_DISABLE_AUTO_SCHEMA_APPLY: true
       run: (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 2>&1 3>pid | ${GITHUB_ACTION_PATH}/wait-agent-setup.sh "${{ inputs.log-when-setup }}" "${{ inputs.log-when-agent-failed }}" ${{ inputs.display-log }}
       shell: bash
-    - name: Moving to path
-      run: cd "${{ inputs.action_path }}" && ls
-      shell: bash
     - name: Log schema diff
       shell: bash
       if: ${{ inputs.display-log }}
