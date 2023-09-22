@@ -18,7 +18,7 @@ do
   then
     echo $input
   fi;
-  
+
   if echo $input | grep -q "$log_when_server_failed";
   then
     cleanup;
@@ -28,7 +28,6 @@ do
     then
       cleanup;
       exit 0;
-    else
     fi;
   fi;
 done
