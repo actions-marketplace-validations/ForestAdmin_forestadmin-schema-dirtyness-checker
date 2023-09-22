@@ -3,6 +3,7 @@ set -Eeou pipefail;
 
 log_when_setup=$1
 log_when_server_failed=$2
+should_log=$3
 
 cleanup()
 {
@@ -13,9 +14,13 @@ cleanup()
 
 while read input
 do
+  if [ "$should_log" = true ];
+  then
+    echo $input
+  fi;
+  
   if echo $input | grep -q "$log_when_server_failed";
   then
-    echo $input;
     cleanup;
     exit 2;
   else
@@ -24,7 +29,6 @@ do
       cleanup;
       exit 0;
     else
-      echo $input;
     fi;
   fi;
 done
