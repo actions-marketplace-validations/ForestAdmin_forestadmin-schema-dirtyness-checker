@@ -62,8 +62,8 @@ runs:
       run: git diff ${{ inputs.schema-path }}
     - name: Checking schema
       shell: bash
-      run: git diff --exit-code --quiet ${{ inputs.schema-path }}
+      run: git diff --exit-code ${{ inputs.schema-path }}
     - name: Checking typings if needed
       if: ${{ inputs.typings-path }}
       shell: bash
-      run: git diff --exit-code --quiet ${{ inputs.typings-path }}
+      run: git diff --exit-code ${{ inputs.typings-path }}
