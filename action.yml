@@ -1,5 +1,8 @@
 name: 'Forest Admin Schema & typings Dirtyness Checker'
 description: 'Allow to check that the .forestadmin-schema.json and the typings files (optional) are not dirty'
+branding:
+  icon: 'briefcase'
+  color: 'green'
 inputs:
   setup-infrastructure-command:
     description: 'The command to setup your infrastructure (Database, docker, etc.)'
