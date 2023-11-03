@@ -1,0 +1,65 @@
+name: 'Forest Admin Schema & typings Dirtyness Checker'
+description: 'Allow to check that the .forestadmin-schema.json and the typings files (optional) are not dirty'
+inputs:
+  setup-infrastructure-command:
+    description: 'The command to setup your infrastructure (Database, docker, etc.)'
+    required: false
+  run-agent-command:
+    description: 'The command to run your agent'
+    required: true
+  log-when-setup:
+    description: 'A log that is printed in your console once your agent is fully setup'
+    required: true
+    default: 'Successfully mounted on Standalone server'
+  log-when-agent-failed:
+    description: 'A log that is printed if your agent failed to start'
+    required: true
+    default: 'Failed running'
+  schema-path:
+    description: 'The path to the .forestadmin-schema.json file'
+    required: true
+    default: '.forestadmin-schema.json'
+  typings-path:
+    description: 'Useful for the agent-nodejs (https://docs.forestadmin.com/developer-guide-agents-nodejs/getting-started/install/autocompletion-and-typings). It will check if the typings is not dirty'
+    required: false
+  env-secret-name:
+    description: 'The name of the environment variable containing the secret'
+    required: true
+    default: 'FOREST_ENV_SECRET'
+  auth-secret-name:
+    description: 'The name of the environment variable containing the auth secret'
+    required: true
+    default: 'FOREST_AUTH_SECRET'
+  display-log:
+    description: 'Display all the logs instead of hiding them'
+    required: false
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo "Running setup ${{ inputs.setup-infrastructure-command }}."
+      shell: bash
+    - name: Setup infrastructure
+      if: ${{ inputs.setup-infrastructure-command }}
+      run: eval ${{ inputs.setup-infrastructure-command }}
+      shell: bash
+    - run: echo "Running agent ${{ inputs.run-agent-command }}."
+      shell: bash
+    - name: Starting agent
+      env:
+        # these secrets must not be overridden because we don't want to send the schema to the server.
+        ${{ inputs.env-secret-name }}: 61a31971206f285c3e8eb8f3ee420172eb004bfa9fa24846dde6d5dd438e3991
+        ${{ inputs.auth-secret-name }}: fake
+
+        # disable the agent v1 to apply the schema automatically
+        FOREST_DISABLE_AUTO_SCHEMA_APPLY: true
+      run: (eval "${{ inputs.run-agent-command }}" & echo $! >&3) 2>&1 3>pid | ${GITHUB_ACTION_PATH}/wait-agent-setup.sh "${{ inputs.log-when-setup }}" "${{ inputs.log-when-agent-failed }}" ${{ inputs.display-log }}
+      shell: bash
+    - name: Checking schema
+      shell: bash
+      run: git diff --exit-code ${{ inputs.schema-path }}
+    - name: Checking typings if needed
+      if: ${{ inputs.typings-path }}
+      shell: bash
+      run: git diff --exit-code ${{ inputs.typings-path }}
